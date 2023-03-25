@@ -1,6 +1,6 @@
 #include "list.h"
 #include "../debug.h"
-
+#include "threads/thread.h"
 /* Our doubly linked lists have two header elements: the "head"
    just before the first element and the "tail" just after the
    last element.  The `prev' link of the front header is null, as
@@ -217,6 +217,34 @@ void
 list_push_back (struct list *list, struct list_elem *elem)
 {
   list_insert (list_end (list), elem);
+}
+
+/*
+1. 시간에 따라 push 하면 될듯 priority queue로 할꺼임
+  - 비워져 있으면 가장 앞에 넣으면 됨 인정
+  - 안비워져 있으면 thread wait_time 비교해서 끝내야됨
+*/
+
+void waiting_list_push(struct list *list, struct list_elem *check){
+  if(list_empty(list)){
+    list_push_front(list, check);
+    return;
+  }else{
+    struct list_elem *start;
+    
+    start = list_begin(list);
+    while(start != list_end(list)){
+      struct thread *sleep_thread = list_entry(start,struct thread, elem);
+      struct thread *current_thread = list_entry(check,struct thread, elem);
+      if(sleep_thread->wait_time > current_thread->wait_time){
+        list_insert(start,check);
+        return;
+      }else{
+        start = list_next(start);
+      }
+    }
+  }
+  list_push_back(list, check);
 }
 
 /* Removes ELEM from its list and returns the element that

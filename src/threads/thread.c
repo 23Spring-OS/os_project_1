@@ -23,6 +23,11 @@
 /* List of processes in THREAD_READY state, that is, processes
    that are ready to run but not actually running. */
 static struct list ready_list;
+/*
+새로 만든 거
+sleep_list;
+*/
+static struct list sleep_list; 
 
 /* List of all processes.  Processes are added to this list
    when they are first scheduled and removed when they exit. */
@@ -91,6 +96,8 @@ thread_init (void)
 
   lock_init (&tid_lock);
   list_init (&ready_list);
+  //새로 만든 것
+  list_init (&sleep_list);
   list_init (&all_list);
 
   /* Set up a thread structure for the running thread. */
@@ -309,9 +316,75 @@ thread_yield (void)
   old_level = intr_disable ();
   if (cur != idle_thread) 
     list_push_back (&ready_list, &cur->elem);
+
   cur->status = THREAD_READY;
   schedule ();
   intr_set_level (old_level);
+}
+
+//새로 짠 함수
+int64_t awake_first_time;
+// 새로 짠 함수
+bool
+sleep_list_check(void){
+  if(list_empty(&sleep_list)){
+    return true;
+  }else{
+    return false;
+  }
+}
+void
+update_awake_first_time(void){
+  struct list_elem* first_entity = list_begin(&sleep_list);
+  struct thread *sleep_thread = list_entry(first_entity,struct thread,elem);  
+  awake_first_time = sleep_thread->wait_time;
+}
+
+int64_t
+get_awake_first_time(void){
+  return awake_first_time;
+}
+
+void
+thread_sleep(int64_t ns){
+//  printf(ns);
+  struct thread *cur = thread_current ();
+  enum intr_level old_level;
+  
+  ASSERT (!intr_context ());
+
+  old_level = intr_disable ();
+  if (cur != idle_thread) 
+    cur->wait_time = ns;
+    waiting_list_push(&sleep_list,&cur->elem);
+  thread_block();
+  intr_set_level (old_level);
+}
+//새로 짠 함수
+void
+wake_thread(void){
+  struct list_elem* first_thread = list_pop_front(&sleep_list);
+  struct thread *sleep_thread = list_entry(first_thread,struct thread,elem);
+  
+  list_push_back(&ready_list, &sleep_thread->elem);
+  sleep_thread->status = THREAD_READY;
+  
+
+  update_awake_first_time();
+}
+
+void check_and_wake_thread(int64_t ticks)
+{
+  if(!sleep_list_check()){
+    if(get_awake_first_time() <= ticks){
+      if(!sleep_list_check()){
+        wake_thread();
+      }else{
+        return;
+      }
+      
+    }
+  }
 }
 
 /* Invoke function 'func' on all threads, passing along 'aux'.
