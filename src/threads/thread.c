@@ -218,6 +218,7 @@ void thread_block(void)
   ASSERT(intr_get_level() == INTR_OFF);
 
   thread_current()->status = THREAD_BLOCKED;
+  sort_ready_queue();
   schedule();
 }
 
@@ -649,6 +650,14 @@ void thread_schedule_tail(struct thread *prev)
   }
 }
 
+/* Sort the ready queue.*/
+static void
+sort_ready_queue(void)
+{
+  list_sort(&ready_list, less, NULL);
+}
+
+
 /* Schedules a new process.  At entry, interrupts must be off and
    the running process's state must have been changed from
    running to some other state.  This function finds another
@@ -659,9 +668,6 @@ void thread_schedule_tail(struct thread *prev)
 static void
 schedule(void)
 {
-  // donated priority 가 생겼으므로 다시 재정렬해줘야함
-  // list_sort(&ready_list, less, NULL);
-
   struct thread *cur = running_thread();
   struct thread *next = next_thread_to_run();
   struct thread *prev = NULL;
