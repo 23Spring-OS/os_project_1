@@ -88,6 +88,7 @@ struct thread
    char name[16];             /* Name (for debugging purposes). */
    uint8_t *stack;            /* Saved stack pointer. */
    int priority;              /* Priority. */
+   int donated_max_priority;  /* Max donated Priority. */
    struct list_elem allelem;  /* List element for all threads list. */
    // 새로 추가된 변수
    int64_t wait_time;

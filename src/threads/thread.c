@@ -234,7 +234,8 @@ bool less(const struct list_elem *a, const struct list_elem *b, void *aux)
 {
   struct thread *priority_large_thread = list_entry(a, struct thread, elem);
   struct thread *priority_small_thread = list_entry(b, struct thread, elem);
-  if (priority_large_thread->priority >= priority_small_thread->priority)
+
+  if (priority_large_thread->donated_max_priority >= priority_small_thread->donated_max_priority)
   {
     return true;
   }
@@ -440,7 +441,7 @@ void thread_set_priority(int new_priority)
 /* Returns the current thread's priority. */
 int thread_get_priority(void)
 {
-  return thread_current()->priority;
+  return thread_current()->donated_max_priority;
 }
 
 /* Sets the current thread's nice value to NICE. */
@@ -560,6 +561,7 @@ init_thread(struct thread *t, const char *name, int priority)
   strlcpy(t->name, name, sizeof t->name);
   t->stack = (uint8_t *)t + PGSIZE;
   t->priority = priority;
+  t->donated_max_priority = priority;
   t->magic = THREAD_MAGIC;
 
   old_level = intr_disable();
@@ -649,6 +651,9 @@ void thread_schedule_tail(struct thread *prev)
 static void
 schedule(void)
 {
+  // donated priority 가 생겼으므로 다시 재정렬해줘야함
+  list_sort(&ready_list, less, NULL);
+
   struct thread *cur = running_thread();
   struct thread *next = next_thread_to_run();
   struct thread *prev = NULL;
