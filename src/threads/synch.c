@@ -68,6 +68,17 @@ sema_down (struct semaphore *sema)
   old_level = intr_disable ();
   while (sema->value == 0) 
     {
+      struct list = &sema->waiters
+      // If new thread comes, compare the priority between waiters.
+      // Do donation if waiting thread's priority is lower than the current thread's priority.
+      for (e = list_begin(&list); e != list_end(&list);
+       e = list_next(e));
+      {
+        if(&thread_current ()->priority > e->donated_max_priority) {
+          e->donated_max_priority = &thread_current ()->priority
+        }
+      }
+
       list_push_back (&sema->waiters, &thread_current ()->elem);
       thread_block ();
     }
