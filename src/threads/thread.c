@@ -235,7 +235,7 @@ bool less(const struct list_elem *a, const struct list_elem *b, void *aux)
   struct thread *priority_large_thread = list_entry(a, struct thread, elem);
   struct thread *priority_small_thread = list_entry(b, struct thread, elem);
 
-  if (priority_large_thread->priority >= priority_small_thread->priority)
+  if (get_priority(priority_large_thread) >= get_priority(priority_small_thread))
   {
     return true;
   }

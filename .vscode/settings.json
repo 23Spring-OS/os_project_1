@@ -1,6 +1,12 @@
 {
     "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
-        "algorithm": "c"
+        "algorithm": "c",
+        "__threading_support": "c",
+        "compare": "c",
+        "functional": "c",
+        "variant": "c",
+        "__functional_base": "c",
+        "memory": "c"
     }
 }
