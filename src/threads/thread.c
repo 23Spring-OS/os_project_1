@@ -444,8 +444,7 @@ int thread_get_priority(void)
   return get_priority(thread_current());
 }
 
-static int 
-get_priority(struct thread* t)
+int get_priority(struct thread* t)
 {
   if (t->donated_max_priority == -1) {
     return t->priority;
