@@ -74,8 +74,9 @@ sema_down (struct semaphore *sema)
       for (e = list_begin(&sema->waiters); e != list_end(&sema->waiters);
        e = list_next(e));
       {
-        if(&thread_current ()->priority > e->donated_max_priority) {
-          e->donated_max_priority = &thread_current ()->priority;
+        struct thread *thread_element = list_entry(e, struct thread, e);
+        if(&thread_current ()->priority > thread_element->donated_max_priority) {
+          thread_element->donated_max_priority = &thread_current ()->priority;
         }
       }
 
