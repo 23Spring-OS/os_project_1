@@ -651,8 +651,7 @@ void thread_schedule_tail(struct thread *prev)
 }
 
 /* Sort the ready queue.*/
-static void
-sort_ready_queue(void)
+void sort_ready_queue(void)
 {
   list_sort(&ready_list, less, NULL);
 }
