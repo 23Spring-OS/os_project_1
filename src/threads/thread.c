@@ -652,7 +652,7 @@ static void
 schedule(void)
 {
   // donated priority 가 생겼으므로 다시 재정렬해줘야함
-  list_sort(&ready_list, less, NULL);
+  // list_sort(&ready_list, less, NULL);
 
   struct thread *cur = running_thread();
   struct thread *next = next_thread_to_run();
