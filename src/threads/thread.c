@@ -255,7 +255,7 @@ thread_unblock(struct thread *t)
   // list_push_back (&ready_list, &t->elem);
   t->status = THREAD_READY;
   intr_set_level(old_level);
-  schedule();
+  thread_yield();
 }
 
 /* Returns the name of the running thread. */
