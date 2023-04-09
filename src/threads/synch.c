@@ -255,7 +255,7 @@ void lock_release(struct lock *lock)
       list_remove(&t->donation_elem);
   }
   struct thread *cur = thread_current();
-  cur->priority = cur->init_priority;
+  thread_set_priority(cur->init_priority);
 
   lock->holder = NULL;
   sema_up(&lock->semaphore);
