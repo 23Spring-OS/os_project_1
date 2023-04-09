@@ -58,6 +58,7 @@ void sema_init(struct semaphore *sema, unsigned value)
    thread will probably turn interrupts back on. */
 void sema_down(struct semaphore *sema)
 {
+  printf("try down\n");
   enum intr_level old_level;
 
   ASSERT(sema != NULL);
@@ -69,7 +70,7 @@ void sema_down(struct semaphore *sema)
     list_insert_ordered(&sema->waiters, &thread_current()->elem, less, NULL);
     // list_push_back(&sema->waiters, &thread_current()->elem);
     thread_block();
-    printf("down\n");
+    printf("blocked\n");
   }
   sema->value--;
   intr_set_level(old_level);
@@ -106,6 +107,7 @@ bool sema_try_down(struct semaphore *sema)
    This function may be called from an interrupt handler. */
 void sema_up(struct semaphore *sema)
 {
+  printf("try up\n");
   enum intr_level old_level;
 
   ASSERT(sema != NULL);
@@ -116,7 +118,7 @@ void sema_up(struct semaphore *sema)
     list_sort(&sema->waiters, less, 0);
     thread_unblock(list_entry(list_pop_front(&sema->waiters),
                               struct thread, elem));
-    printf("up\n");
+    printf("unblocked\n");
   }
 
   sema->value++;
