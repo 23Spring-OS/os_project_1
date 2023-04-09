@@ -248,12 +248,12 @@ void lock_release(struct lock *lock)
   ASSERT(lock_held_by_current_thread(lock));
 
   struct list_elem *e;
-  for (e = list_begin(&lock->holder->donation_list); e != list_end(&lock->holder->donation_list); e = list_next(e))
-  {
-    struct thread *t = list_entry(e, struct thread, donation_elem);
-    if (t->waiting_lock == lock)
-      list_remove(&t->donation_elem);
-  }
+  // for (e = list_begin(&lock->holder->donation_list); e != list_end(&lock->holder->donation_list); e = list_next(e))
+  // {
+  //   struct thread *t = list_entry(e, struct thread, donation_elem);
+  //   if (t->waiting_lock == lock)
+  //     list_remove(&t->donation_elem);
+  // }
   struct thread *cur = thread_current();
   cur->priority = cur->init_priority;
 
