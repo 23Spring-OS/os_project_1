@@ -348,7 +348,7 @@ void cond_signal(struct condition *cond, struct lock *lock UNUSED)
   }
 }
 
-bool sema_less(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+bool sema_less(struct list_elem *a, struct list_elem *b, void *aux)
 {
   struct semaphore_elem *large_sema = list_entry(a, struct semaphore_elem, elem);
   struct semaphore_elem *small_sema = list_entry(b, struct semaphore_elem, elem);
