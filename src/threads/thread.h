@@ -87,12 +87,18 @@ struct thread
    enum thread_status status; /* Thread state. */
    char name[16];             /* Name (for debugging purposes). */
    uint8_t *stack;            /* Saved stack pointer. */
-   int priority;              /* Priority. */
-   struct list_elem allelem;  /* List element for all threads list. */
+   int priority;
+   int init_priority;        /* Priority. */
+   struct list_elem allelem; /* List element for all threads list. */
+   struct lock *waiting_lock;
+   struct list donation_list;
+
    // 새로 추가된 변수
    int64_t wait_time;
    /* Shared between thread.c and synch.c. */
    struct list_elem elem; /* List element. */
+
+   struct list_elem donation_elem;
 
 #ifdef USERPROG
    /* Owned by userprog/process.c. */
@@ -127,12 +133,16 @@ const char *thread_name(void);
 void thread_exit(void) NO_RETURN;
 void thread_yield(void);
 
+bool less(struct list_elem *, struct list_elem *, void *);
 /* Performs some operation on thread t, given auxiliary data AUX. */
 typedef void thread_action_func(struct thread *t, void *aux);
 void thread_foreach(thread_action_func *, void *);
-
+bool compare_thread_priority(struct list_elem *, struct list_elem *, void *);
 int thread_get_priority(void);
 void thread_set_priority(int);
+void thread_set_priority_void(struct thread *, int);
+void thread_test_preemption(void);
+void thread_sort(void);
 
 int thread_get_nice(void);
 void thread_set_nice(int);

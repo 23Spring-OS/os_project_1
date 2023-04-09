@@ -75,6 +75,7 @@ static void *alloc_frame(struct thread *, size_t size);
 static void schedule(void);
 void thread_schedule_tail(struct thread *prev);
 static tid_t allocate_tid(void);
+int get_priority(struct thread *t);
 
 /* Initializes the threading system by transforming the code
    that's currently running into a thread.  This can't work in
@@ -230,15 +231,16 @@ void thread_block(void)
    it may expect that it can atomically unblock a thread and
    update other data. */
 
-bool less(const struct list_elem *a, const struct list_elem *b, void *aux)
+bool less(struct list_elem *a, struct list_elem *b, void *aux)
 {
   struct thread *priority_large_thread = list_entry(a, struct thread, elem);
   struct thread *priority_small_thread = list_entry(b, struct thread, elem);
-  if (priority_large_thread->priority >= priority_small_thread->priority)
-  {
-    return true;
-  }
-  return false;
+  // if (priority_large_thread->priority >= priority_small_thread->priority)
+  // {
+  //   return true;
+  // }
+  // return false;
+  return get_priority(priority_large_thread) >= get_priority(priority_small_thread);
 }
 
 thread_unblock(struct thread *t)
@@ -434,15 +436,43 @@ void thread_foreach(thread_action_func *func, void *aux)
 void thread_set_priority(int new_priority)
 {
   thread_current()->priority = new_priority;
-  thread_yield();
+  thread_test_preemption();
 }
 
+void thread_test_preemption(void)
+{
+  if (!list_empty(&ready_list) && thread_current()->priority <= list_entry(list_front(&ready_list), struct thread, elem)->priority)
+    thread_yield();
+}
+void thread_set_priority_void(struct thread *t, int new_priority)
+{
+  t->priority = new_priority;
+  thread_sort();
+  thread_test_preemption();
+}
 /* Returns the current thread's priority. */
 int thread_get_priority(void)
 {
-  return thread_current()->priority;
+  return get_priority(thread_current());
+}
+int get_priority(struct thread *t)
+{
+  // list_empty
+  // if (list_empty(&t->donation_list))
+  // {
+  //   return t->priority;
+  // }
+  // else
+  // {
+  //   return list_entry(list_front(&t->donation_list), struct thread, donation_elem)->priority;
+  // }
+  return t->priority;
 }
 
+void thread_sort(void)
+{
+  list_sort(&ready_list, less, NULL);
+}
 /* Sets the current thread's nice value to NICE. */
 void thread_set_nice(int nice UNUSED)
 {
@@ -559,8 +589,13 @@ init_thread(struct thread *t, const char *name, int priority)
   t->status = THREAD_BLOCKED;
   strlcpy(t->name, name, sizeof t->name);
   t->stack = (uint8_t *)t + PGSIZE;
+
   t->priority = priority;
   t->magic = THREAD_MAGIC;
+
+  t->init_priority = priority;
+  t->waiting_lock = NULL;
+  list_init(&t->donation_list);
 
   old_level = intr_disable();
   list_push_back(&all_list, &t->allelem);
