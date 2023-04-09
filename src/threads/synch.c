@@ -64,7 +64,6 @@ void sema_down(struct semaphore *sema)
   ASSERT(!intr_context());
 
   old_level = intr_disable();
-  printf("try down\n");
   while (sema->value == 0)
   {
     list_insert_ordered(&sema->waiters, &thread_current()->elem, less, NULL);
@@ -112,7 +111,6 @@ void sema_up(struct semaphore *sema)
   ASSERT(sema != NULL);
 
   old_level = intr_disable();
-  printf("try up\n");
   if (!list_empty(&sema->waiters))
   {
     list_sort(&sema->waiters, less, 0);
