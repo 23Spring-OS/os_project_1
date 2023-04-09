@@ -200,8 +200,11 @@ void lock_acquire(struct lock *lock)
   // lock에 홀더가 없으면 걍 할당해주면 됨
   if (lock->holder)
   {
-    list_insert_ordered(&lock->holder->donation_list, &cur->donation_elem, less, NULL);
-    thread_set_priority_void(lock->holder, cur->priority);
+    if (lock->holder->priority < cur->priority)
+    {
+      list_insert_ordered(&lock->holder->donation_list, &cur->donation_elem, less, NULL);
+      thread_set_priority_void(lock->holder, cur->priority);
+    }
   }
 
   sema_down(&lock->semaphore);
