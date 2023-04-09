@@ -240,7 +240,7 @@ bool less(struct list_elem *a, struct list_elem *b, void *aux)
   //   return true;
   // }
   // return false;
-  return get_priority(priority_large_thread) < get_priority(priority_small_thread);
+  return get_priority(priority_large_thread) > get_priority(priority_small_thread);
 }
 
 thread_unblock(struct thread *t)
