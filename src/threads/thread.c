@@ -240,6 +240,8 @@ bool less(struct list_elem *a, struct list_elem *b, void *aux)
   //   return true;
   // }
   // return false;
+  printf("large %d", get_priority(priority_large_thread));
+  printf("small %d", get_priority(priority_small_thread));
   return get_priority(priority_large_thread) > get_priority(priority_small_thread);
 }
 
