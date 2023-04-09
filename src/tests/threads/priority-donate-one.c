@@ -45,7 +45,7 @@ static void
 acquire1_thread_func(void *lock_)
 {
   struct lock *lock = lock_;
-  // printf("함수 실행됨1");
+  printf("함수 실행됨1");
   lock_acquire(lock);
   // printf("함수 실행됨2");
   msg("acquire1: got the lock");
