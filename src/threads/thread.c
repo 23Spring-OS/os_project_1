@@ -203,7 +203,7 @@ tid_t thread_create(const char *name, int priority,
   // function(NULL);
   /* Add to run queue. */
   thread_unblock(t);
-  thread_yield();
+  thread_test_preemption();
   return tid;
 }
 
