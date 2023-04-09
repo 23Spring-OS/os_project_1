@@ -68,8 +68,8 @@ void sema_down(struct semaphore *sema)
   {
     list_insert_ordered(&sema->waiters, &thread_current()->elem, less, NULL);
     // list_push_back(&sema->waiters, &thread_current()->elem);
-    printf("blocked\n");
     thread_block();
+    printf("blocked\n");
   }
   sema->value--;
   intr_set_level(old_level);
@@ -318,7 +318,8 @@ void cond_wait(struct condition *cond, struct lock *lock)
   ASSERT(lock_held_by_current_thread(lock));
 
   sema_init(&waiter.semaphore, 0);
-  list_push_back(&cond->waiters, &waiter.elem);
+  // list_push_back(&cond->waiters, &waiter.elem);
+  list_insert_ordered(&cond->waiters, &waiter.elem, sema_less, NULL);
   lock_release(lock);
   sema_down(&waiter.semaphore);
   lock_acquire(lock);
@@ -339,9 +340,26 @@ void cond_signal(struct condition *cond, struct lock *lock UNUSED)
   ASSERT(lock_held_by_current_thread(lock));
 
   if (!list_empty(&cond->waiters))
+  {
+    list_sort(&cond->waiters, sema_less, NULL);
     sema_up(&list_entry(list_pop_front(&cond->waiters),
                         struct semaphore_elem, elem)
                  ->semaphore);
+  }
+}
+
+bool sema_less(const struct list_elem *a, const struct list_elem *b, void *aux UNUSED)
+{
+  struct semaphore_elem *large_sema = list_entry(a, struct semaphore_elem, elem);
+  struct semaphore_elem *small_sema = list_entry(b, struct semaphore_elem, elem);
+
+  struct list *waiter_large_sema = &(large_sema->semaphore.waiters);
+  struct list *waiter_small_sema = &(small_sema->semaphore.waiters);
+
+  int large_priority = list_entry(list_begin(waiter_large_sema), struct thread, elem)->priority;
+  int small_priority = list_entry(list_begin(waiter_small_sema), struct thread, elem)->priority;
+
+  return large_priority > small_priority;
 }
 
 /* Wakes up all threads, if any, waiting on COND (protected by
