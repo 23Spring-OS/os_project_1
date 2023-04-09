@@ -68,8 +68,8 @@ void sema_down(struct semaphore *sema)
   {
     list_insert_ordered(&sema->waiters, &thread_current()->elem, less, NULL);
     // list_push_back(&sema->waiters, &thread_current()->elem);
-    thread_block();
     printf("blocked\n");
+    thread_block();
   }
   sema->value--;
   intr_set_level(old_level);
