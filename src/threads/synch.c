@@ -59,7 +59,7 @@ void sema_init(struct semaphore *sema, unsigned value)
 void sema_down(struct semaphore *sema)
 {
   printf("try down: ");
-  printf("%d", thread_current()->tid);
+  printf("%d", &thread_current()->tid);
   enum intr_level old_level;
 
   ASSERT(sema != NULL);
