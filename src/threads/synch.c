@@ -58,6 +58,8 @@ void sema_init(struct semaphore *sema, unsigned value)
    thread will probably turn interrupts back on. */
 void sema_down(struct semaphore *sema)
 {
+  printf("try down: ");
+  printf("%d", thread_current()->tid);
   enum intr_level old_level;
 
   ASSERT(sema != NULL);
