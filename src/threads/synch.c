@@ -69,7 +69,6 @@ void sema_down(struct semaphore *sema)
     list_insert_ordered(&sema->waiters, &thread_current()->elem, less, NULL);
     // list_push_back(&sema->waiters, &thread_current()->elem);
     thread_block();
-    printf("blocked\n");
   }
   sema->value--;
   intr_set_level(old_level);
@@ -116,7 +115,6 @@ void sema_up(struct semaphore *sema)
     list_sort(&sema->waiters, less, 0);
     thread_unblock(list_entry(list_pop_front(&sema->waiters),
                               struct thread, elem));
-    printf("unblocked\n");
   }
 
   sema->value++;
