@@ -240,7 +240,7 @@ bool less(struct list_elem *a, struct list_elem *b, void *aux)
   //   return true;
   // }
   // return false;
-  return get_priority(priority_large_thread) >= get_priority(priority_small_thread);
+  return get_priority(priority_large_thread) > get_priority(priority_small_thread);
 }
 
 thread_unblock(struct thread *t)
@@ -441,13 +441,13 @@ void thread_set_priority(int new_priority)
 
 void thread_test_preemption(void)
 {
-  if (!list_empty(&ready_list) && thread_current()->priority <= list_entry(list_front(&ready_list), struct thread, elem)->priority)
+  if (!list_empty(&ready_list) && thread_current()->priority < list_entry(list_front(&ready_list), struct thread, elem)->priority)
     thread_yield();
 }
 void thread_set_priority_void(struct thread *t, int new_priority)
 {
   t->priority = new_priority;
-  thread_sort();
+  // thread_sort();
   thread_test_preemption();
 }
 /* Returns the current thread's priority. */
