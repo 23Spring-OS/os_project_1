@@ -254,7 +254,7 @@ void lock_release(struct lock *lock)
     if (t->waiting_lock == lock)
       list_remove(&t->donation_elem);
   }
-  thread_set_priority(lock->holder->init_priority);
+  // thread_set_priority(lock->holder->init_priority);
 
   lock->holder = NULL;
   sema_up(&lock->semaphore);
